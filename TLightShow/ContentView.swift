@@ -8,14 +8,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var viewModel = ProjectViewModel()
+    @State private var showingNewProjectSheet = false
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationView {
+            ProjectListView(viewModel: viewModel, showingNewProjectSheet: $showingNewProjectSheet)
         }
-        .padding()
+        .sheet(isPresented: $showingNewProjectSheet) {
+            NewProjectSheet(viewModel: viewModel, isPresented: $showingNewProjectSheet)
+        }
     }
 }
 
