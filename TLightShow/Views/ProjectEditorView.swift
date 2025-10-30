@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
+import UIKit
 
 struct ProjectEditorView: View {
     @ObservedObject var viewModel: ProjectViewModel

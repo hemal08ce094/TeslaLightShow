@@ -111,7 +111,38 @@ struct LightShowProject: Identifiable, Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, name, audioFileName, frames, duration, frameInterval, createdDate, modifiedDate
+        case id, name, audioFileName, audioFileURLPath, frames, duration, frameInterval, createdDate, modifiedDate
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        audioFileName = try container.decode(String.self, forKey: .audioFileName)
+        frames = try container.decode([LightFrame].self, forKey: .frames)
+        duration = try container.decode(TimeInterval.self, forKey: .duration)
+        frameInterval = try container.decode(TimeInterval.self, forKey: .frameInterval)
+        createdDate = try container.decode(Date.self, forKey: .createdDate)
+        modifiedDate = try container.decode(Date.self, forKey: .modifiedDate)
+
+        if let urlPath = try container.decodeIfPresent(String.self, forKey: .audioFileURLPath) {
+            audioFileURL = URL(fileURLWithPath: urlPath)
+        } else {
+            audioFileURL = nil
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(name, forKey: .name)
+        try container.encode(audioFileName, forKey: .audioFileName)
+        try container.encode(frames, forKey: .frames)
+        try container.encode(duration, forKey: .duration)
+        try container.encode(frameInterval, forKey: .frameInterval)
+        try container.encode(createdDate, forKey: .createdDate)
+        try container.encode(modifiedDate, forKey: .modifiedDate)
+        try container.encodeIfPresent(audioFileURL?.path, forKey: .audioFileURLPath)
     }
 }
 

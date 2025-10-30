@@ -45,7 +45,7 @@ struct TeslaCarPreview: View {
                 .padding()
             }
         }
-        .onChange(of: currentTime) { _ in
+        .onChange(of: currentTime) { oldValue, newValue in
             updateCurrentState()
         }
         .onAppear {

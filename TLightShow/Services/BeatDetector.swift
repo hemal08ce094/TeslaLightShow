@@ -67,10 +67,22 @@ class BeatDetector {
     private func calculateDynamicThreshold(energies: [Float], sensitivity: Float) -> Float {
         guard !energies.isEmpty else { return 0 }
 
+        // Calculate mean
         var mean: Float = 0
-        var stdDev: Float = 0
+        vDSP_meanv(energies, 1, &mean, vDSP_Length(energies.count))
 
-        vDSP_normalize(energies, 1, nil, 1, &mean, &stdDev, vDSP_Length(energies.count))
+        // Calculate standard deviation
+        var differences = [Float](repeating: 0, count: energies.count)
+        var negativeMean = -mean
+        vDSP_vsadd(energies, 1, &negativeMean, &differences, 1, vDSP_Length(energies.count))
+
+        var squaredDifferences = [Float](repeating: 0, count: energies.count)
+        vDSP_vsq(differences, 1, &squaredDifferences, 1, vDSP_Length(energies.count))
+
+        var variance: Float = 0
+        vDSP_meanv(squaredDifferences, 1, &variance, vDSP_Length(energies.count))
+
+        let stdDev = sqrt(variance)
 
         return mean + (stdDev * sensitivity)
     }

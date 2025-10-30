@@ -8,6 +8,7 @@
 import Foundation
 import AVFoundation
 import Combine
+import UIKit
 
 class AudioManager: NSObject, ObservableObject {
     @Published var isPlaying = false

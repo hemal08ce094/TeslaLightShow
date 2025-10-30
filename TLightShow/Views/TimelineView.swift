@@ -23,8 +23,9 @@ struct TimelineView: View {
                     .cornerRadius(8)
 
                 // Time markers
-                ForEach(0..<Int(duration) + 1, id: \.self) { second in
-                    let xPosition = CGFloat(second) / CGFloat(duration) * geometry.size.width
+                if duration > 0 {
+                    ForEach(0..<Int(duration) + 1, id: \.self) { second in
+                        let xPosition = CGFloat(second) / CGFloat(duration) * geometry.size.width
 
                     VStack(spacing: 2) {
                         Rectangle()
@@ -36,11 +37,11 @@ struct TimelineView: View {
                             .foregroundColor(.secondary)
                     }
                     .offset(x: xPosition)
-                }
+                    }
 
-                // Frames
-                ForEach(frames) { frame in
-                    let xPosition = CGFloat(frame.timestamp) / CGFloat(duration) * geometry.size.width
+                    // Frames
+                    ForEach(frames) { frame in
+                        let xPosition = CGFloat(frame.timestamp) / CGFloat(duration) * geometry.size.width
 
                     Button(action: {
                         onFrameTapped(frame)
@@ -59,15 +60,17 @@ struct TimelineView: View {
                         }
                     }
                     .offset(x: xPosition - 1.5)
-                }
+                    }
 
-                // Current time indicator
-                Rectangle()
-                    .fill(Color.red)
-                    .frame(width: 2)
-                    .offset(x: CGFloat(currentTime) / CGFloat(duration) * geometry.size.width - 1)
+                    // Current time indicator
+                    Rectangle()
+                        .fill(Color.red)
+                        .frame(width: 2)
+                        .offset(x: CGFloat(currentTime) / CGFloat(duration) * geometry.size.width - 1)
+                }
             }
             .onTapGesture { location in
+                guard duration > 0 else { return }
                 let tappedTime = Double(location.x / geometry.size.width) * duration
                 onTimelineTapped(tappedTime)
             }
