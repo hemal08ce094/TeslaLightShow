@@ -2,6 +2,13 @@
 
 A comprehensive iOS application for creating custom light shows for Tesla vehicles. This app allows you to import music, automatically sync lights to beats, manually edit sequences, and export files ready for your Tesla.
 
+## 🎵 Quick Start - Test Audio Included!
+
+A **test audio file** is included in the `TestAssets/` directory for immediate testing:
+- **TestAudio.wav** - 30-second audio with clear 120 BPM beats
+- Perfect for testing beat detection and light show generation
+- See `TestAssets/README.md` for details
+
 ## Features
 
 ### Core Functionality
