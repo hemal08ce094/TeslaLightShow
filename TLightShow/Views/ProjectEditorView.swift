@@ -18,6 +18,7 @@ struct ProjectEditorView: View {
     @State private var showingAutoSyncSheet = false
     @State private var selectedFrame: LightFrame?
     @State private var showingFrameEditor = false
+    @State private var showingErrorAlert = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -73,14 +74,18 @@ struct ProjectEditorView: View {
         .sheet(item: $selectedFrame) { frame in
             FrameEditorSheet(viewModel: viewModel, frame: frame)
         }
-        .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
+        .alert("Error", isPresented: $showingErrorAlert) {
             Button("OK") {
                 viewModel.errorMessage = nil
+                showingErrorAlert = false
             }
         } message: {
             if let error = viewModel.errorMessage {
                 Text(error)
             }
+        }
+        .onChange(of: viewModel.errorMessage) { oldValue, newValue in
+            showingErrorAlert = newValue != nil
         }
     }
 
