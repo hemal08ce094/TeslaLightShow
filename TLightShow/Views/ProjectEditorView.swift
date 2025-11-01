@@ -21,30 +21,51 @@ struct ProjectEditorView: View {
     @State private var showingErrorAlert = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Top controls
-            controlBar
+        ZStack {
+            // Main content
+            VStack(spacing: 0) {
+                // Top controls
+                controlBar
+                    .background(Color(UIColor.systemBackground))
 
-            Divider()
+                Divider()
 
-            // Main content area
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Audio section
-                    audioSection
+                // Main content area
+                ScrollView {
+                    VStack(spacing: 24) {
+                        // Audio section
+                        audioSection
+                            .padding(.horizontal)
 
-                    // Auto-sync section
-                    autoSyncSection
+                        Divider()
 
-                    // Timeline
-                    if viewModel.currentProject?.audioFileURL != nil {
-                        timelineSection
+                        // Auto-sync section
+                        autoSyncSection
+                            .padding(.horizontal)
+
+                        Divider()
+
+                        // Timeline (only show if audio is loaded)
+                        if viewModel.currentProject?.audioFileURL != nil {
+                            timelineSection
+                                .padding(.horizontal)
+
+                            Divider()
+                        }
+
+                        // Preview section - ALWAYS SHOW
+                        previewSection
+                            .padding(.horizontal)
+                            .padding(.bottom, 30)
                     }
-
-                    // Preview section
-                    previewSection
+                    .padding(.top, 20)
                 }
-                .padding()
+                .background(Color(UIColor.systemGroupedBackground))
+            }
+
+            // Processing overlay
+            if viewModel.isProcessing {
+                processingOverlay
             }
         }
         .navigationTitle(project.name)
@@ -238,7 +259,32 @@ struct ProjectEditorView: View {
                 frames: viewModel.currentProject?.frames ?? [],
                 currentTime: viewModel.audioManager.currentTime
             )
-            .frame(height: 200)
+            .frame(height: 280)
+            .background(Color(UIColor.systemBackground))
+            .cornerRadius(12)
+            .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
+        }
+    }
+
+    // MARK: - Processing Overlay
+    private var processingOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+
+            VStack(spacing: 20) {
+                ProgressView()
+                    .scaleEffect(1.5)
+                    .tint(.white)
+
+                Text("Processing...")
+                    .font(.headline)
+                    .foregroundColor(.white)
+            }
+            .padding(40)
+            .background(Color(UIColor.systemBackground))
+            .cornerRadius(16)
+            .shadow(radius: 20)
         }
     }
 
