@@ -60,12 +60,20 @@ class ProjectViewModel: ObservableObject {
     func importAudio(from url: URL) {
         guard var project = currentProject else { return }
 
+        // Start accessing security-scoped resource
+        let didStartAccessing = url.startAccessingSecurityScopedResource()
+        defer {
+            if didStartAccessing {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+
         do {
             // Copy audio to app documents directory
             let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             let audioDirectory = documentsDirectory.appendingPathComponent("Audio", isDirectory: true)
 
-            if !FileManager.default.fileExists(atPath: audioDirectory.path) {
+            if !FileManager.default.fileExists(atPath: audioDirectory.path()) {
                 try FileManager.default.createDirectory(at: audioDirectory, withIntermediateDirectories: true)
             }
 
@@ -73,7 +81,7 @@ class ProjectViewModel: ObservableObject {
             let destinationURL = audioDirectory.appendingPathComponent(fileName)
 
             // Remove existing file if present
-            if FileManager.default.fileExists(atPath: destinationURL.path) {
+            if FileManager.default.fileExists(atPath: destinationURL.path()) {
                 try FileManager.default.removeItem(at: destinationURL)
             }
 
@@ -200,7 +208,7 @@ class ProjectViewModel: ObservableObject {
                 let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
                 let exportDirectory = documentsDirectory.appendingPathComponent("Exports/\(project.name)", isDirectory: true)
 
-                if !FileManager.default.fileExists(atPath: exportDirectory.path) {
+                if !FileManager.default.fileExists(atPath: exportDirectory.path()) {
                     try FileManager.default.createDirectory(at: exportDirectory, withIntermediateDirectories: true)
                 }
 

@@ -163,7 +163,7 @@ class FSEQEncoder {
         let audioExtension = sourceAudioURL.pathExtension
         let audioURL = outputDirectory.appendingPathComponent("\(project.name).\(audioExtension)")
 
-        if FileManager.default.fileExists(atPath: audioURL.path) {
+        if FileManager.default.fileExists(atPath: audioURL.path()) {
             try FileManager.default.removeItem(at: audioURL)
         }
 

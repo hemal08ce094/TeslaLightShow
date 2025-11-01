@@ -12,7 +12,7 @@ struct ContentView: View {
     @State private var showingNewProjectSheet = false
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ProjectListView(viewModel: viewModel, showingNewProjectSheet: $showingNewProjectSheet)
         }
         .sheet(isPresented: $showingNewProjectSheet) {

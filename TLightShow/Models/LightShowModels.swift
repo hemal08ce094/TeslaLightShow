@@ -142,7 +142,7 @@ struct LightShowProject: Identifiable, Codable {
         try container.encode(frameInterval, forKey: .frameInterval)
         try container.encode(createdDate, forKey: .createdDate)
         try container.encode(modifiedDate, forKey: .modifiedDate)
-        try container.encodeIfPresent(audioFileURL?.path, forKey: .audioFileURLPath)
+        try container.encodeIfPresent(audioFileURL?.path(), forKey: .audioFileURLPath)
     }
 }
 
