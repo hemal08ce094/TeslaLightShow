@@ -105,25 +105,37 @@ class BeatDetector {
         return min(max(bpm, 60), 180)
     }
 
-    /// Generate light frames from detected beats
+    enum PatternStrategy: String, CaseIterable, Identifiable {
+        case balanced = "Balanced"
+        case chill = "Chill"
+        case party = "Party"
+        
+        var id: String { rawValue }
+    }
+
+    /// Generate light frames from detected beats with intelligent variation
     func generateLightFrames(
         from beats: [TimeInterval],
         duration: TimeInterval,
-        lightCommand: LightCommand = .on,
+        strategy: PatternStrategy = .balanced,
         flashDuration: TimeInterval = 0.1
     ) -> [LightFrame] {
         var frames: [LightFrame] = []
 
-        for beat in beats {
-            // Add "on" frame at beat
+        for (index, beat) in beats.enumerated() {
+            // Vary light commands based on beat intensity, position, and strategy
+            let currentLightCommand = selectLightCommand(for: index, total: beats.count, strategy: strategy)
+            let currentClosureCommand = selectClosureCommand(for: index, beat: beat, duration: duration, strategy: strategy)
+
+            // Add main frame at beat
             frames.append(LightFrame(
                 timestamp: beat,
-                lightCommand: lightCommand,
-                closureCommand: .none
+                lightCommand: currentLightCommand,
+                closureCommand: currentClosureCommand
             ))
 
-            // Add "off" frame shortly after
-            if beat + flashDuration < duration {
+            // Add "off" frame for flash effects only
+            if shouldFlash(command: currentLightCommand, strategy: strategy) && beat + flashDuration < duration {
                 frames.append(LightFrame(
                     timestamp: beat + flashDuration,
                     lightCommand: .off,
@@ -133,5 +145,70 @@ class BeatDetector {
         }
 
         return frames.sorted { $0.timestamp < $1.timestamp }
+    }
+    
+    private func shouldFlash(command: LightCommand, strategy: PatternStrategy) -> Bool {
+        if command != .on { return false }
+        
+        switch strategy {
+        case .chill: return false // Chill mode rarely flashes hard
+        case .party: return true  // Party mode always flashes
+        case .balanced: return true
+        }
+    }
+
+    private func selectLightCommand(for index: Int, total: Int, strategy: PatternStrategy) -> LightCommand {
+        let position = Double(index) / Double(max(total - 1, 1))
+
+        switch strategy {
+        case .chill:
+            // Chill: Mostly ramps, very few hard on/offs
+            return [.rampOn500, .rampOn1000, .rampOn2000, .rampOff1000, .rampOff2000].randomElement() ?? .rampOn1000
+            
+        case .party:
+            // Party: Mostly hard flashes, fast ramps
+            if index % 2 == 0 { return .on }
+            return [.on, .rampOn500, .rampOff500].randomElement() ?? .on
+            
+        case .balanced:
+            // Balanced: The original logic
+            switch position {
+            case 0..<0.2:
+                return [.rampOn500, .rampOn1000].randomElement() ?? .rampOn500
+            case 0.2..<0.4:
+                return [.on, .rampOn500, .rampOn1000].randomElement() ?? .on
+            case 0.4..<0.6:
+                return [.on, .on, .on, .rampOn500].randomElement() ?? .on
+            case 0.6..<0.8:
+                return [.on, .rampOff500, .rampOff1000].randomElement() ?? .on
+            default:
+                return [.rampOff500, .rampOff1000, .rampOff2000].randomElement() ?? .rampOff500
+            }
+        }
+    }
+
+    private func selectClosureCommand(for index: Int, beat: TimeInterval, duration: TimeInterval, strategy: PatternStrategy) -> ClosureCommand {
+        // Only add closure commands if explicitly requested or in specific patterns
+        // For safety, we'll be conservative with closure commands
+        
+        if strategy == .chill { return .none } // No moving parts in chill mode
+        
+        let position = beat / duration
+
+        // Add closure commands sparingly for dramatic effect
+        if index % 16 == 0 { // Every 16th beat (less frequent)
+            switch position {
+            case 0..<0.25:
+                return .open
+            case 0.25..<0.5:
+                return .dance
+            case 0.5..<0.75:
+                return .dance
+            default:
+                return .close
+            }
+        }
+
+        return .none
     }
 }

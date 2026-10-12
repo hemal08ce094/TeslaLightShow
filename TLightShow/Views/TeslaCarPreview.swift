@@ -114,7 +114,7 @@ struct TeslaCarPreview: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color.white.opacity(0.1),
+                            Color.white.opacity(0.15),
                             Color.clear
                         ],
                         startPoint: .top,
@@ -125,9 +125,21 @@ struct TeslaCarPreview: View {
 
             // Windshield
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.blue.opacity(0.2))
+                .fill(
+                    LinearGradient(
+                        colors: [Color.blue.opacity(0.3), Color.blue.opacity(0.1)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
                 .frame(width: 80, height: 50)
                 .offset(y: -10)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.2), lineWidth: 0.5)
+                        .frame(width: 80, height: 50)
+                        .offset(y: -10)
+                )
 
             // Wheels
             HStack(spacing: 180) {
@@ -171,29 +183,23 @@ struct TeslaCarPreview: View {
 
     private var headlight: some View {
         ZStack {
-            // Outer glow
+            // Outer glow (Bloom)
             if !currentLightState.isEmpty {
                 Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [
-                                getLightColor(currentLightState).opacity(0.6 * lightIntensity),
-                                getLightColor(currentLightState).opacity(0.3 * lightIntensity),
-                                Color.clear
-                            ],
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: 30
-                        )
-                    )
-                    .frame(width: 60, height: 60)
-                    .blur(radius: 10)
+                    .fill(getLightColor(currentLightState))
+                    .frame(width: 80, height: 80)
+                    .blur(radius: 20)
+                    .opacity(0.6 * lightIntensity)
             }
 
             // Headlight housing
             Capsule()
                 .fill(Color.black)
                 .frame(width: 25, height: 15)
+                .overlay(
+                    Capsule()
+                        .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                )
 
             // Light beam
             Capsule()
@@ -202,7 +208,7 @@ struct TeslaCarPreview: View {
                 .frame(width: 23, height: 13)
                 .shadow(
                     color: getLightColor(currentLightState),
-                    radius: currentLightState.isEmpty ? 0 : 15 * lightIntensity
+                    radius: currentLightState.isEmpty ? 0 : 20 * lightIntensity
                 )
         }
     }

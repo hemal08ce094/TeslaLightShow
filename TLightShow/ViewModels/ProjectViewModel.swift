@@ -104,7 +104,9 @@ class ProjectViewModel: ObservableObject {
 
     // MARK: - Auto-Sync (Beat Detection)
 
-    func autoGenerateLightShow(sensitivity: Float = 1.5, flashDuration: TimeInterval = 0.1) {
+    // MARK: - Auto-Sync (Beat Detection)
+
+    func autoGenerateLightShow(sensitivity: Float = 1.5, flashDuration: TimeInterval = 0.1, strategy: BeatDetector.PatternStrategy = .balanced) {
         guard var project = currentProject,
               let audioURL = project.audioFileURL else {
             errorMessage = "No audio file loaded"
@@ -124,7 +126,7 @@ class ProjectViewModel: ObservableObject {
                 let frames = self.beatDetector.generateLightFrames(
                     from: detection.beats,
                     duration: project.duration,
-                    lightCommand: .on,
+                    strategy: strategy,
                     flashDuration: flashDuration
                 )
 
@@ -192,7 +194,7 @@ class ProjectViewModel: ObservableObject {
 
     // MARK: - Export
 
-    func exportProject(completion: @escaping (Result<(fseq: URL, audio: URL), Error>) -> Void) {
+    func exportProject(completion: @escaping (Result<(fseqURL: URL, audioURL: URL), Error>) -> Void) {
         guard let project = currentProject else {
             completion(.failure(NSError(domain: "ProjectViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "No project selected"])))
             return

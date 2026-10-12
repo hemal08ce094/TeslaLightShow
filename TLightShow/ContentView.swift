@@ -13,11 +13,23 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            ProjectListView(viewModel: viewModel, showingNewProjectSheet: $showingNewProjectSheet)
+            ZStack {
+                // Global Background
+                LinearGradient(
+                    colors: [Color(red: 0.05, green: 0.05, blue: 0.08), Color.black],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
+
+                ProjectListView(viewModel: viewModel, showingNewProjectSheet: $showingNewProjectSheet)
+            }
         }
         .sheet(isPresented: $showingNewProjectSheet) {
             NewProjectSheet(viewModel: viewModel, isPresented: $showingNewProjectSheet)
         }
+        .preferredColorScheme(.dark)
+        .tint(.blue)
     }
 }
 

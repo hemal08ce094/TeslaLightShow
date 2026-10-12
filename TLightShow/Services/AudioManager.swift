@@ -72,6 +72,7 @@ class AudioManager: NSObject, ObservableObject {
 
     private func startDisplayLink() {
         displayLink = CADisplayLink(target: self, selector: #selector(updateProgress))
+        displayLink?.preferredFramesPerSecond = 30 // Limit to 30 FPS for better performance
         displayLink?.add(to: .main, forMode: .common)
     }
 
@@ -81,7 +82,12 @@ class AudioManager: NSObject, ObservableObject {
     }
 
     @objc private func updateProgress() {
-        currentTime = audioPlayer?.currentTime ?? 0
+        let newTime = audioPlayer?.currentTime ?? 0
+
+        // Only update if there's a meaningful change to prevent unnecessary UI updates
+        if abs(newTime - currentTime) > 0.01 {
+            currentTime = newTime
+        }
     }
 
     private func extractAudioLevels() {

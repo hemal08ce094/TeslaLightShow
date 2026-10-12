@@ -355,10 +355,24 @@ struct AutoSyncSheet: View {
     @Binding var isPresented: Bool
     @State private var sensitivity: Float = 1.5
     @State private var flashDuration: Double = 0.1
+    @State private var selectedStrategy: BeatDetector.PatternStrategy = .balanced
 
     var body: some View {
         NavigationView {
             Form {
+                Section(header: Text("Pattern Style")) {
+                    Picker("Strategy", selection: $selectedStrategy) {
+                        ForEach(BeatDetector.PatternStrategy.allCases) { strategy in
+                            Text(strategy.rawValue).tag(strategy)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    
+                    Text(strategyDescription)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+                
                 Section(header: Text("Beat Detection Settings")) {
                     VStack(alignment: .leading) {
                         Text("Sensitivity: \(sensitivity, specifier: "%.1f")")
@@ -373,7 +387,11 @@ struct AutoSyncSheet: View {
 
                 Section {
                     Button(action: {
-                        viewModel.autoGenerateLightShow(sensitivity: sensitivity, flashDuration: flashDuration)
+                        viewModel.autoGenerateLightShow(
+                            sensitivity: sensitivity,
+                            flashDuration: flashDuration,
+                            strategy: selectedStrategy
+                        )
                         isPresented = false
                     }) {
                         HStack {
@@ -397,6 +415,17 @@ struct AutoSyncSheet: View {
                     }
                 }
             }
+        }
+    }
+
+    var strategyDescription: String {
+        switch selectedStrategy {
+        case .balanced:
+            return "A mix of ramps and flashes suitable for most music."
+        case .chill:
+            return "Smooth transitions and gentle ramps. Minimal flashing."
+        case .party:
+            return "High energy! Rapid flashes and strobes."
         }
     }
 }

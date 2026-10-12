@@ -12,7 +12,7 @@ struct ExportSheet: View {
     @ObservedObject var viewModel: ProjectViewModel
     @Binding var isPresented: Bool
 
-    @State private var exportedURLs: (fseq: URL, audio: URL)?
+    @State private var exportedURLs: (fseqURL: URL, audioURL: URL)?
     @State private var showingShareSheet = false
     @State private var isExporting = false
 
@@ -42,7 +42,7 @@ struct ExportSheet: View {
         }
         .sheet(isPresented: $showingShareSheet) {
             if let urls = exportedURLs {
-                ShareSheet(items: [urls.fseq, urls.audio])
+                ShareSheet(items: [urls.fseqURL, urls.audioURL])
             }
         }
     }
@@ -108,7 +108,7 @@ struct ExportSheet: View {
         }
     }
 
-    private func successView(urls: (fseq: URL, audio: URL)) -> some View {
+    private func successView(urls: (fseqURL: URL, audioURL: URL)) -> some View {
         VStack(spacing: 20) {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 60))
@@ -119,8 +119,8 @@ struct ExportSheet: View {
                 .fontWeight(.bold)
 
             VStack(alignment: .leading, spacing: 12) {
-                exportedFileRow(title: "Light Show File", fileName: urls.fseq.lastPathComponent, icon: "doc.fill")
-                exportedFileRow(title: "Audio File", fileName: urls.audio.lastPathComponent, icon: "music.note")
+                exportedFileRow(title: "Light Show File", fileName: urls.fseqURL.lastPathComponent, icon: "doc.fill")
+                exportedFileRow(title: "Audio File", fileName: urls.audioURL.lastPathComponent, icon: "music.note")
             }
             .padding()
             .background(Color.gray.opacity(0.1))
